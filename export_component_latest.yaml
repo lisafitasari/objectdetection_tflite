@@ -1,0 +1,25 @@
+name: Train object detection
+description: Runs Keras object detection training on Kubeflow. Uses 
+inputs:
+  - {name: Training data file,    type: GCSPath,    description: 'GCS path of training file locations and labels.'} 
+  - {name: Training image pack,  type: GCSPath,    description: 'GCS path of image training pack.'} 
+  - {name: Parser, type: String, description: 'Parser'}
+  - {name: Skip, type: Boolean, description: 'Set true to skip this step'}
+  - {name: Num epochs, type: Integer, description: 'Number of epochs to run for'}
+  - {name: GCS weight path, type: GCSPath, description: 'GCS location to save the keras weights to'}
+outputs:
+  - {name: Model data dir,          type: GCSPath} # type: {GCSPath: {path_type: Directory}}
+implementation:
+  container:
+    image: gcr.io/celerates-playground/comex-objectdetect-train:20190807201023
+    command: [python3, /ml/train.py]
+    args: [
+      --path,   {inputValue: Training data file},
+      --images,    {inputValue: Training image pack},
+      --parser, {inputValue: Parser},
+      --skip,    {inputValue: Skip},
+      --num_epochs,  {inputValue: Num epochs},
+      --gcs_weight_path, {inputValue: GCS weight path}
+    ]
+    fileOutputs:
+      Model data dir: /output.txt
